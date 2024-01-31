@@ -52,12 +52,18 @@ class DateContentIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final length = content.content.length < 5 ? content.content.length : 5;
     return Container(
       width: 40,
       height: 12,
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: Colors.red,
         borderRadius: BorderRadius.circular(1.6),
+      ),
+      alignment: Alignment.centerLeft,
+      child: CommonText(
+        content.content,
+        fontSize: 12,
       ),
     );
   }

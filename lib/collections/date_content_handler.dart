@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:calendar_app/collections/date_content.dart';
+import 'package:calendar_app/main.dart';
 import 'package:isar/isar.dart';
+
+import '../settings/notification.dart';
 
 class DateContentHandler {
   DateContentHandler(
@@ -49,7 +52,33 @@ class DateContentHandler {
 
     return isar.writeTxn(() async {
       isar.dateContents.put(content);
+    }).then((value) {
+      Timer(const Duration(seconds: 3), () {
+        flutterLocalNotificationsPlugin.cancelAll();
+        _allNotificationsUpdate();
+      });
     });
+  }
+
+  void _allNotificationsUpdate() async {
+    final contents = await isar.dateContents.where().sortByDate().findAll();
+    for (final content in contents) {
+      if (content.date.year >= DateTime.now().year &&
+          content.date.month >= DateTime.now().month &&
+          content.date.day >= DateTime.now().day &&
+          content.startTime.hour >= DateTime.now().hour &&
+          content.startTime.minute >= DateTime.now().minute) {
+        notificationSchedule(
+            id: content.id,
+            body: content.content,
+            year: content.date.year,
+            month: content.date.month,
+            day: content.date.day,
+            hour: content.startTime.hour,
+            minutes: content.startTime.minute);
+      }
+      print('---id ${content.id}');
+    }
   }
 
   FutureOr<void> updateContent({
@@ -68,6 +97,24 @@ class DateContentHandler {
       ..color = color
       ..startTime = startTime
       ..endTime = endTime;
+
+    flutterLocalNotificationsPlugin.cancel(content.id);
+    if (content.date.year >= DateTime.now().year &&
+        content.date.month >= DateTime.now().month &&
+        content.date.day >= DateTime.now().day &&
+        content.startTime.hour >= DateTime.now().hour &&
+        content.startTime.minute >= DateTime.now().minute) {
+      notificationSchedule(
+          id: content.id,
+          body: content.content,
+          year: content.date.year,
+          month: content.date.month,
+          day: content.date.day,
+          hour: content.startTime.hour,
+          minutes: content.startTime.minute);
+      print('---here');
+    }
+    print('---id here ${content.id}');
     return isar.writeTxn(() async {
       await isar.dateContents.put(content);
     });
@@ -77,6 +124,7 @@ class DateContentHandler {
     if (!isar.isOpen) {
       return Future<void>(() {});
     }
+    flutterLocalNotificationsPlugin.cancel(content.id);
     return isar.writeTxn(() async {
       await isar.dateContents.delete(content.id);
     });

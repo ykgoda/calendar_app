@@ -6,6 +6,8 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../type/type.dart';
 import '../collections/date_content.dart';
+import 'button.dart';
+import 'const.dart';
 
 class MakeNewContent extends ConsumerStatefulWidget {
   const MakeNewContent(
@@ -72,42 +74,58 @@ class MakeNewContentState extends ConsumerState<MakeNewContent> {
     return SafeArea(
         child: ColoredBox(
             color: Colors.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: verticalPadding, horizontal: horizontalPadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Material(
+                                child: Ink(
+                                  color: Colors.white,
+                                  child: IconButton(
+                                    // alignment: Alignment.centerLeft,
+                                    iconSize: 32.0,
+                                    onPressed: () => Navigator.pop(context),
+                                    icon: const Icon(Icons.arrow_back_ios),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.center,
+                              child:
+                                  CommonText(widget.isBlank ? '新規作成' : '更新する'),
+                            ),
+                          ],
+                        )),
                     Material(
-                      child: IconButton(
-                          alignment: Alignment.centerLeft,
-                          iconSize: 32.0,
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.arrow_back)),
-                    ),
-                    CommonText(widget.isBlank ? '新規作成' : '更新する'),
-                  ],
-                ),
-                Material(
-                    type: MaterialType.transparency,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: _verticalPadding,
-                          horizontal: _horizontalPadding),
-                      child: TextFormField(
-                        decoration: const InputDecoration(
-                          hintText: 'タイトル',
+                      type: MaterialType.transparency,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: verticalPadding * 2),
+                        child: TextFormField(
+                          decoration: const InputDecoration(
+                            hintText: 'タイトル',
+                          ),
+                          initialValue: text,
+                          onChanged: (value) {
+                            setState(() {
+                              text = value;
+                            });
+                          },
                         ),
-                        initialValue: text,
-                        onChanged: (value) {
-                          setState(() {
-                            text = value;
-                          });
-                        },
                       ),
-                    )),
-                SettingItem(
-                    titleItem: TextButton(
-                        onPressed: () {
+                    ),
+                    SettingItem(
+                        onTap: () {
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
@@ -134,18 +152,17 @@ class MakeNewContentState extends ConsumerState<MakeNewContent> {
                             ),
                           );
                         },
-                        child: const Text('カラー')),
-                    contentItem: Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: selectedColor ?? Colors.black,
-                      ),
-                    )),
-                SettingItem(
-                  titleItem: TextButton(
-                      onPressed: () {
+                        titleItem: const CommonText('カラー'),
+                        contentItem: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: selectedColor ?? Colors.black,
+                          ),
+                        )),
+                    SettingItem(
+                      onTap: () {
                         DatePicker.showTimePicker(context,
                             currentTime: DateTime.now(),
                             showSecondsColumn: false,
@@ -155,123 +172,139 @@ class MakeNewContentState extends ConsumerState<MakeNewContent> {
                           });
                         });
                       },
-                      child: Text(startTime.toString() == 'null'
-                          ? '開始時間'
-                          : ('${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}'))),
-                ),
-                SettingItem(
-                    titleItem: TextButton(
-                  onPressed: () {
-                    DatePicker.showTimePicker(context,
-                        currentTime: DateTime.now(),
-                        showSecondsColumn: false,
-                        locale: LocaleType.jp, onConfirm: (time) {
-                      setState(() {
-                        endTime = time;
-                      });
-                    });
-                  },
-                  child: Text(endTime.toString() == 'null'
-                      ? '終了時間'
-                      : ('${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}')),
-                )),
-                widget.isBlank
-                    ? SettingItem(
-                        titleItem: TextButton(
-                        child: const Text('作成する'),
-                        onPressed: () {
-                          final DateContent newContent = DateContent();
-                          final setDate = DateTime(widget.date.year!,
-                              widget.date.month!, widget.date.date!);
-                          newContent
-                            ..content = text
-                            ..startTime = startTime
-                            ..endTime = endTime
-                            ..color = selectedColorToString
-                            ..date = setDate;
-                          ref
-                              .watch(dateContentHandler)
-                              .addContent(content: newContent);
-
-                          setState(() {
-                            contents.add(newContent);
-                          });
-                          widget.addContents(newContent);
-                          // Navigator.popUntil(context, (route) => route.isFirst);
-                          Future.delayed(const Duration(milliseconds: 1000),
-                              () {
-                            Navigator.pop(context);
-                          });
-                        },
-                      ))
-                    : SettingItem(
-                        titleItem: TextButton(
-                        child: const Text('更新する'),
-                        onPressed: () {
-                          ref.watch(dateContentHandler).updateContent(
-                              startTime: startTime,
-                              endTime: endTime,
-                              color: selectedColorToString,
-                              text: text,
-                              content: widget.content);
-                          final DateContent newContent = DateContent();
-                          final setDate = DateTime(widget.date.year!,
-                              widget.date.month!, widget.date.date!);
-                          newContent
-                            ..content = text
-                            ..startTime = startTime
-                            ..endTime = endTime
-                            ..color = selectedColorToString
-                            ..date = setDate;
-                          widget.updateContents(newContent);
-                        },
-                      )),
-                if (contents.isNotEmpty)
-                  Expanded(
-                    child: ListView.builder(
-                      itemBuilder: (context, index) {
-                        final content = contents[index];
-                        return CommonText(content.content);
-                      },
-                      itemCount: contents.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
+                      titleItem: const CommonText('開始時間'),
+                      titleFlex: 7,
+                      contentItem: CommonText(startTime.toString() == 'null'
+                          ? ''
+                          : ('${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}')),
                     ),
-                  )
-              ],
-            )));
+                    SettingItem(
+                      onTap: () {
+                        DatePicker.showTimePicker(context,
+                            currentTime: DateTime.now(),
+                            showSecondsColumn: false,
+                            locale: LocaleType.jp, onConfirm: (time) {
+                          setState(() {
+                            endTime = time;
+                          });
+                        });
+                      },
+                      titleItem: const CommonText('終了時間'),
+                      titleFlex: 7,
+                      contentItem: CommonText(startTime.toString() == 'null'
+                          ? ''
+                          : ('${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}')),
+                    ),
+                    widget.isBlank
+                        ? PrimaryButton(
+                            onTap: () {
+                              final DateContent newContent = DateContent();
+                              final setDate = DateTime(widget.date.year!,
+                                  widget.date.month!, widget.date.date!);
+                              newContent
+                                ..content = text
+                                ..startTime = startTime
+                                ..endTime = endTime
+                                ..color = selectedColorToString
+                                ..date = setDate;
+                              ref
+                                  .watch(dateContentHandler)
+                                  .addContent(content: newContent);
+
+                              setState(() {
+                                contents.add(newContent);
+                              });
+                              widget.addContents(newContent);
+
+                              // Navigator.popUntil(context, (route) => route.isFirst);
+                              Future.delayed(const Duration(milliseconds: 1000),
+                                  () {
+                                Navigator.pop(context);
+                              });
+                            },
+                            text: '作成する',
+                          )
+                        : PrimaryButton(
+                            onTap: () {
+                              ref.watch(dateContentHandler).updateContent(
+                                  startTime: startTime,
+                                  endTime: endTime,
+                                  color: selectedColorToString,
+                                  text: text,
+                                  content: widget.content);
+                              final DateContent newContent = DateContent();
+                              final setDate = DateTime(widget.date.year!,
+                                  widget.date.month!, widget.date.date!);
+                              newContent
+                                ..content = text
+                                ..startTime = startTime
+                                ..endTime = endTime
+                                ..color = selectedColorToString
+                                ..date = setDate;
+                              widget.updateContents(newContent);
+                            },
+                            text: '更新する',
+                          ),
+                    // if (contents.isNotEmpty)
+                    //   Expanded(
+                    //     child: ListView.builder(
+                    //       itemBuilder: (context, index) {
+                    //         final content = contents[index];
+                    //         return CommonText(content.content);
+                    //       },
+                    //       itemCount: contents.length,
+                    //       shrinkWrap: true,
+                    //       physics: const NeverScrollableScrollPhysics(),
+                    //     ),
+                    //   )
+                  ],
+                ))));
   }
 }
 
-const _horizontalPadding = 8.0;
-const _verticalPadding = 16.0;
-
 class SettingItem extends StatelessWidget {
-  const SettingItem({super.key, required this.titleItem, this.contentItem});
+  const SettingItem({
+    super.key,
+    required this.onTap,
+    required this.titleItem,
+    this.contentItem,
+    this.titleFlex = 8,
+  });
 
+  final Function() onTap;
   final Widget titleItem;
   final Widget? contentItem;
+  final int titleFlex;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: _horizontalPadding, vertical: _verticalPadding),
-        child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
-            decoration: BoxDecoration(
-                border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.5)),
-                borderRadius: BorderRadius.circular(4.0)),
-            child: Column(children: [
-              // Expanded(
-              Row(children: [
-                titleItem,
-                const SizedBox(
-                  width: 16,
-                ),
-                contentItem ?? const SizedBox.shrink(),
-              ]),
-              // )
-            ])));
+    return GestureDetector(
+        onTap: onTap,
+        child: Padding(
+            padding: const EdgeInsets.only(bottom: verticalPadding * 2),
+            child: Container(
+                padding: const EdgeInsets.symmetric(
+                    vertical: verticalPadding, horizontal: horizontalPadding),
+                decoration: BoxDecoration(
+                    border:
+                        Border.all(color: const Color.fromRGBO(0, 0, 0, 0.5)),
+                    borderRadius: BorderRadius.circular(4.0)),
+                child: Column(children: [
+                  // Expanded(
+                  Row(children: [
+                    Expanded(
+                      flex: titleFlex,
+                      child: titleItem,
+                    ),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    Expanded(
+                      flex: 10 - titleFlex,
+                      child: contentItem ?? const SizedBox.shrink(),
+                    ),
+                  ]),
+                  // )
+                ]))));
   }
 }

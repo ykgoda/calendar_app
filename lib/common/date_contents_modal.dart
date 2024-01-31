@@ -1,3 +1,4 @@
+import 'package:calendar_app/common/const.dart';
 import 'package:calendar_app/common/text.dart';
 import 'package:flutter/material.dart';
 import '../type/type.dart';
@@ -69,39 +70,57 @@ class CommonDateContentsModalState extends State<CommonDateContentsModal> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: _horizontalPadding),
-                  child: Row(
-                    children: [
-                      CommonText(
-                        widget.date.month.toString(),
-                        fontSize: 32,
-                      ),
-                      const CommonText(
-                        '/',
-                        fontSize: 32,
-                      ),
-                      CommonText(
-                        widget.date.date.toString(),
-                        fontSize: 32,
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      CommonText(
-                        day,
-                        fontSize: 24,
-                        color: widget.date.day == 6
-                            ? Colors.blue
-                            : widget.date.day == 7
-                                ? Colors.red
-                                : Colors.black,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close_outlined),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding),
+                    child: Padding(
+                        padding:
+                            const EdgeInsets.only(left: _horizontalPadding),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                child: Row(
+                                  children: [
+                                    CommonText(
+                                      widget.date.month.toString(),
+                                      fontSize: 32,
+                                    ),
+                                    const CommonText(
+                                      '/',
+                                      fontSize: 32,
+                                    ),
+                                    CommonText(
+                                      widget.date.date.toString(),
+                                      fontSize: 32,
+                                    ),
+                                    const SizedBox(
+                                      width: 4,
+                                    ),
+                                    CommonText(
+                                      day,
+                                      fontSize: 24,
+                                      color: widget.date.day == 6
+                                          ? Colors.blue
+                                          : widget.date.day == 7
+                                              ? Colors.red
+                                              : Colors.black,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.cancel,
+                                  size: 32,
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ]))),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                  child: Divider(
+                    color: Colors.black,
                   ),
                 ),
                 Expanded(

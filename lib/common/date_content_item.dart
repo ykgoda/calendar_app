@@ -3,8 +3,8 @@ import 'package:calendar_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import '../page/make_new_content_page.dart';
 import '../type/type.dart';
-import '../common/make_new_content.dart';
 import '../collections/date_content.dart';
 
 const _verticalPadding = 8.0;
@@ -41,78 +41,94 @@ class DateContentItem extends ConsumerWidget {
     return TextButton(
         onPressed: () =>
             Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-              return MakeNewContent(
+              return MakeNewContentPage(
                 date: date,
                 addContents: addContents,
                 updateContents: updateContents,
+                deleteContents: deleteContents,
                 isBlank: isBlank,
                 content: content,
               );
             })),
-        child: ColoredBox(
-            color: Colors.white,
+        child:
+            // color: Colors.white,
             // color: Color(int.parse(content.color, radix: 16)),
-            child: Padding(
+            Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: _verticalPadding, horizontal: _horizontalPadding),
-                child: Slidable(
-                  endActionPane: ActionPane(
-                    motion: const ScrollMotion(),
-                    children: [
-                      SlidableAction(
-                          // An action can be bigger than the others.
-                          spacing: 2,
-                          flex: 1,
-                          onPressed: (context) {
-                            ref
-                                .watch(dateContentHandler)
-                                .deleteContent(content);
-                            deleteContents(content);
-                          },
-                          backgroundColor: const Color(0xFFFE4A49),
-                          foregroundColor: Colors.white,
-                          icon: Icons.delete,
-                          label: '削除',
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(8.0))),
-                    ],
-                  ),
-                  child: Container(
-                      height: 108.0,
-                      decoration: BoxDecoration(
-                          border: isBlank
-                              ? Border.all(
-                                  color: const Color.fromRGBO(0, 0, 0, 0.1))
-                              : Border.all(
-                                  color: const Color.fromRGBO(0, 0, 0, 0.5)),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(8.0))),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: _verticalPadding,
-                          horizontal: _horizontalPadding),
-                      child: isBlank
-                          ? const Align(
-                              child: CommonText('追加する'),
-                            )
-                          : Row(
-                              children: [
-                                Column(
-                                  children: [
-                                    CommonText(
-                                        '${content.startTime.hour} : ${content.startTime.minute}'),
-                                    const CommonText('|'),
-                                    CommonText(
-                                        '${content.endTime.hour} : ${content.endTime.minute}'),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: _verticalPadding,
-                                      horizontal: _horizontalPadding * 2),
-                                  child: CommonText(content.content),
+                child: ColoredBox(
+                    color: Colors.white,
+                    child: Slidable(
+                      endActionPane: ActionPane(
+                        motion: const ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                              // An action can be bigger than the others.
+                              spacing: 2,
+                              flex: 1,
+                              onPressed: (context) {
+                                ref
+                                    .watch(dateContentHandler)
+                                    .deleteContent(content);
+                                deleteContents(content);
+                              },
+                              backgroundColor: const Color(0xFFFE4A49),
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              label: '削除',
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(8.0))),
+                        ],
+                      ),
+                      child: Container(
+                          height: 80.0,
+                          decoration: BoxDecoration(
+                              border: isBlank
+                                  ? Border.all(
+                                      color: const Color.fromRGBO(0, 0, 0, 0.1))
+                                  : Border.all(
+                                      color:
+                                          const Color.fromRGBO(0, 0, 0, 0.5)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(8.0)),
+                              color: isBlank ? Colors.blue : null),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: _verticalPadding,
+                              horizontal: _horizontalPadding),
+                          child: isBlank
+                              ? Align(
+                                  child: CommonText(
+                                    '追加する',
+                                    color:
+                                        isBlank ? Colors.white : Colors.black,
+                                  ),
                                 )
-                              ],
-                            )),
-                ))));
+                              : Row(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        CommonText(
+                                          '${content.startTime.hour.toString().padLeft(2, '0')} : ${content.startTime.minute.toString().padLeft(2, '0')}',
+                                          fontSize: 16,
+                                        ),
+                                        const CommonText(
+                                          '|',
+                                          fontSize: 16,
+                                        ),
+                                        CommonText(
+                                          '${content.endTime.hour.toString().padLeft(2, '0')} : ${content.endTime.minute.toString().padLeft(2, '0')}',
+                                          fontSize: 16,
+                                        ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          // vertical: _verticalPadding,
+                                          horizontal: _horizontalPadding * 2),
+                                      child: CommonText(content.content),
+                                    )
+                                  ],
+                                )),
+                    ))));
   }
 }
